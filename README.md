@@ -5,16 +5,16 @@ lab work for ONU
 
 - проблема самоперетину!
 + (done)відсутня реалізація їжі і росту
-- мода гри покрокова, варто зробити постійний рух (playMode -> false)
++ (done)мода гри покрокова, варто зробити постійний рух (playMode -> false)
 - розширити на всю консоль (розкоментити дещо)
-- розповсюдження їжі
++ (done)розповсюдження їжі
 
 ToDo:
 
 - self-cross
 + (done)not food and grow
-- playMode -> false, for continue
++ (done)playMode -> false, for continue
 - for full console to do
-- food spreading in field
++ (done)food spreading in field
 
 :)

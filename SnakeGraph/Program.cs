@@ -17,17 +17,22 @@ namespace SnakeGraph
 	{
 		private static int[,] cached_field;
 
+		private const int numberOfFood = 10;
+		private const bool playMode = false;
+
 		public static void Main (string[] args)
 		{
 			int w = 10; //Console.WindowWidth;
 			int h = 12; //Console.WindowHeight;
 			int[,] field = new int[h, w];
-			field = BuildField (field);
-
 			int[,] body = { { 1, 1 }, { 1, 2 }, { 1, 3 }, { 1, 4 } };
+
+			//we need body to seed food correctly
+			field = BuildField (field, body);
+
 			DrowBody (body);
 			ConsoleKeyInfo cki;
-			bool playMode = true;
+
 			do
 			{
 				
@@ -86,7 +91,7 @@ namespace SnakeGraph
 			}while (cki.Key != ConsoleKey.Escape);
 		}
 
-		static int[,] BuildField(int[,] _field)
+		static int[,] BuildField(int[,] _field, int[,] _body)
 		{
 
 			var height = _field.GetLength (0);
@@ -96,7 +101,7 @@ namespace SnakeGraph
 					_field [i, j] = (int)Colors.EField;
 				}
 			}
-			_field [0, 0] = (int)Colors.EFood;
+			_field = SeedFood (_field, _body);
 			Out (_field, null, Colors.EField);
 			return _field;
 		}
@@ -192,7 +197,35 @@ namespace SnakeGraph
 
 
 
+		static int[,] SeedFood(int[,] _field, int[,] _body)
+		{
+			var height = _field.GetLength (0);
+			var width = _field.GetLength (1);
+			Random random = new Random ();
 
+			//_field [0, 0] = (int)Colors.EFood;
+			for (int i = 0; i < numberOfFood; ++i) {
+				
+				int y = random.Next(0, height);
+				int x = random.Next(0, width);
+
+				//check whether it is not inside the body
+				bool ok = true;
+				for (int j = 0; j < _body.GetLength (0); ++j) {
+					if (_body [j, 0] == x && _body [j, 1] == y) {
+						ok = false;
+						break;
+					}
+				}
+
+				if (ok)
+					_field [y, x] = (int)Colors.EFood;
+				else
+					--i;
+			}
+
+			return _field;
+		}
 
 		static void Out(int[,] _field, int[,] _body, Colors _bodyColor)
 		{
