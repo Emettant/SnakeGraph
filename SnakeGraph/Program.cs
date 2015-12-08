@@ -8,7 +8,8 @@ namespace SnakeGraph
 	enum Colors:int
 	{
 		EField,
-		EBody
+		EBody,
+		EFood
 	}
 
 
@@ -89,12 +90,13 @@ namespace SnakeGraph
 		{
 
 			var height = _field.GetLength (0);
-			var weight = _field.GetLength (1);
+			var width = _field.GetLength (1);
 			for (var i = 0; i < height; ++i) {
-				for (var j = 0; j < weight; ++j) {
+				for (var j = 0; j < width; ++j) {
 					_field [i, j] = (int)Colors.EField;
 				}
 			}
+			_field [0, 0] = (int)Colors.EFood;
 			Out (_field, null, Colors.EField);
 			return _field;
 		}
@@ -113,50 +115,73 @@ namespace SnakeGraph
 
 		static int[,] BuildBody(int[,] _field, int[,] _body, ConsoleKey op)
 		{
-			var length = _body.GetLength(0);
 
-			int[,] newbody = new int[length, 2];
-
+			var height = _field.GetLength (0);
+			var width = _field.GetLength (1);
+			
 			int[] head = { _body [0, 0], _body [0, 1] };
 			int[] neck = { _body [1, 0], _body [1, 1] };
 
 			ConsoleKey unavailableMove = ConsoleKey.LeftArrow;
+			var dif_on_y = head [0] - neck [0];
+			var dif_on_x = head [1] - neck [1];
 
-			if (-1 == head [1] - neck [1])
+			if (width - 1 == ToGoodValue (0, width, dif_on_x))
 				unavailableMove = ConsoleKey.RightArrow;
-			else if (1 == head [1] - neck [1])
+			else if (1 == ToGoodValue (0, width, dif_on_x))
 				unavailableMove = ConsoleKey.LeftArrow;
-			else if (-1 == head [0] - neck [0])
+			else if (height - 1 == ToGoodValue (0, height, dif_on_y))
 				unavailableMove = ConsoleKey.DownArrow;
-			else if (1 == head [0] - neck [0])
+			else if (1 == ToGoodValue (0, height, dif_on_y))
 				unavailableMove = ConsoleKey.UpArrow;
 			
 			if (op == unavailableMove) return _body;
 
-			if (op == ConsoleKey.LeftArrow && op != unavailableMove) {
-				newbody [0, 0] = _body [0, 0];
-				newbody [0, 1] = _body [0, 1] - 1;
+			int y = -1;
+			int x = -1;
 
+			if (op == ConsoleKey.LeftArrow && op != unavailableMove) {
+				y = _body [0, 0];
+				x = _body [0, 1] - 1;
 			}
 			else if (op == ConsoleKey.DownArrow && op != unavailableMove) {
-				newbody [0, 0] = _body [0, 0] + 1;
-				newbody [0, 1] = _body [0, 1];
+				y = _body [0, 0] + 1;
+				x = _body [0, 1];
 			}
 			else if (op == ConsoleKey.RightArrow && op != unavailableMove) {
-				newbody [0, 0] = _body [0, 0] ;
-				newbody [0, 1] = _body [0, 1] + 1;
+				y = _body [0, 0] ;
+				x = _body [0, 1] + 1;
 			}
 			else if (op == ConsoleKey.UpArrow && op != unavailableMove) {
-				newbody [0, 0] = _body [0, 0] - 1;
-				newbody [0, 1] = _body [0, 1];
+				y = _body [0, 0] - 1;
+				x = _body [0, 1];
 			}
 
+			y = ToGoodValue (0, height, y);
+			x = ToGoodValue (0, width, x);
 
-			for (var i = 1; i < length; ++i) {
-				newbody [i, 0] = _body [i - 1, 0];
-				newbody [i, 1] = _body [i - 1, 1];
+			var length = _body.GetLength(0);
+
+			int[,] newbody = _body;
+
+			if (_field [y, x] == (int)Colors.EFood) {
+				cached_field [y, x] = (int)Colors.EField;
+				newbody = new int[length + 1, 2];
+				for (var i = 0; i < length; ++i) {
+					newbody [i + 1, 0] = _body [i, 0];
+					newbody [i + 1, 1] = _body [i, 1];
+				}
+			} else {
+				newbody = new int[length, 2];
+				for (var i = 1; i < length; ++i) {
+					newbody [i, 0] = _body [i - 1, 0];
+					newbody [i, 1] = _body [i - 1, 1];
+				}
+
 			}
-
+			newbody [0, 0] = y;
+			newbody [0, 1] = x;
+		
 			return newbody;
 		}
 
@@ -173,7 +198,7 @@ namespace SnakeGraph
 				cached_field = _field;
 
 			var height = _field.GetLength (0);
-			var weight = _field.GetLength (1);
+			var width = _field.GetLength (1);
 
 			//if we draw field only, we dont need body at all
 			if (_body != null)
@@ -184,7 +209,7 @@ namespace SnakeGraph
 					var x = _body [i, 1];
 
 					y = ToGoodValue (0, height, y);
-					x = ToGoodValue (0, weight, x);
+					x = ToGoodValue (0, width, x);
 					
 					_field [y, x] = (int)_bodyColor;
 				}
@@ -192,7 +217,7 @@ namespace SnakeGraph
 
 
 			for (var i = 0; i < height; ++i) {
-				for (var j = 0; j < weight; ++j) {
+				for (var j = 0; j < width; ++j) {
 						Console.Write(_field[i,j]);
 					}
 					Console.WriteLine();
