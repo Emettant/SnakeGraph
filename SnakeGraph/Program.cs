@@ -122,6 +122,7 @@ namespace SnakeGraph
 			int[] head = { _body [0, 0], _body [0, 1] };
 			int[] neck = { _body [1, 0], _body [1, 1] };
 
+			// find out whether head-neck is on correct direction to given operation
 			ConsoleKey unavailableMove = ConsoleKey.LeftArrow;
 			var dif_on_y = head [0] - neck [0];
 			var dif_on_x = head [1] - neck [1];
@@ -135,24 +136,27 @@ namespace SnakeGraph
 			else if (1 == ToGoodValue (0, height, dif_on_y))
 				unavailableMove = ConsoleKey.UpArrow;
 			
-			if (op == unavailableMove) return _body;
+			if (op == unavailableMove) 
+				//cant do operation e.g. if head-neck left-directed and operation is right
+				return _body;
 
+			//next Snake body-part position
 			int y = -1;
 			int x = -1;
 
-			if (op == ConsoleKey.LeftArrow && op != unavailableMove) {
+			if (op == ConsoleKey.LeftArrow) {
 				y = _body [0, 0];
 				x = _body [0, 1] - 1;
 			}
-			else if (op == ConsoleKey.DownArrow && op != unavailableMove) {
+			else if (op == ConsoleKey.DownArrow) {
 				y = _body [0, 0] + 1;
 				x = _body [0, 1];
 			}
-			else if (op == ConsoleKey.RightArrow && op != unavailableMove) {
+			else if (op == ConsoleKey.RightArrow) {
 				y = _body [0, 0] ;
 				x = _body [0, 1] + 1;
 			}
-			else if (op == ConsoleKey.UpArrow && op != unavailableMove) {
+			else if (op == ConsoleKey.UpArrow) {
 				y = _body [0, 0] - 1;
 				x = _body [0, 1];
 			}
@@ -164,6 +168,7 @@ namespace SnakeGraph
 
 			int[,] newbody = _body;
 
+			//eating and growing
 			if (_field [y, x] == (int)Colors.EFood) {
 				cached_field [y, x] = (int)Colors.EField;
 				newbody = new int[length + 1, 2];
