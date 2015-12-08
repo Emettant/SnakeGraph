@@ -14,3 +14,5 @@ ToDo:
 - not food and grow
 - playMode -> false, for continue
 - for full console to do
+
+:)
