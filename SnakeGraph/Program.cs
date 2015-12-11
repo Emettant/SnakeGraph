@@ -11,6 +11,12 @@ namespace SnakeGraph
 		EBody,
 		EFood
 	}
+	enum IsGameOverState:int
+	{
+		EFalse,
+		EBodyCrash,
+		EFoodDone
+	}
 
 
 	class MainClass
@@ -18,8 +24,10 @@ namespace SnakeGraph
 		private static int[,] cached_field;
 
 		private const int numberOfFood = 10;
-		private const int gameSpeed = 100;
+		private const int gameSpeed = 400;
 		private const bool playMode = false;
+
+		static private IsGameOverState isGameOver = IsGameOverState.EFalse;
 
 		public static void Main (string[] args)
 		{
@@ -33,7 +41,6 @@ namespace SnakeGraph
 
 			DrowBody (body);
 			ConsoleKeyInfo cki;
-
 			do
 			{
 				
@@ -48,6 +55,7 @@ namespace SnakeGraph
 						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
+						if (Convert.ToBoolean(isGameOver)) break;
 						DrowBody(body);
 					} while(Console.KeyAvailable == playMode);
 				}
@@ -60,6 +68,7 @@ namespace SnakeGraph
 						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
+						if (Convert.ToBoolean(isGameOver)) break;
 						DrowBody(body);
 					} while(Console.KeyAvailable == playMode);
 				}
@@ -72,6 +81,7 @@ namespace SnakeGraph
 						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
+						if (Convert.ToBoolean(isGameOver)) break;
 						DrowBody(body);
 					} while(Console.KeyAvailable == playMode);
 				}
@@ -84,12 +94,18 @@ namespace SnakeGraph
 						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
+						if (Convert.ToBoolean(isGameOver)) break;
 						DrowBody(body);
 					} while(Console.KeyAvailable == playMode);
 				}
 
 		
-			}while (cki.Key != ConsoleKey.Escape);
+			}while (cki.Key != ConsoleKey.Escape && IsGameOverState.EFalse == isGameOver );
+			if (IsGameOverState.EFalse != isGameOver) {
+				//ToDo Game Over here
+				Console.WriteLine(isGameOver);
+				Console.WriteLine("V P : )");
+			}
 		}
 
 		static int[,] BuildField(int[,] _field, int[,] _body)
@@ -121,6 +137,7 @@ namespace SnakeGraph
 
 		static int[,] BuildBody(int[,] _field, int[,] _body, ConsoleKey op)
 		{
+			
 
 			var height = _field.GetLength (0);
 			var width = _field.GetLength (1);
@@ -173,6 +190,10 @@ namespace SnakeGraph
 			var length = _body.GetLength(0);
 
 			int[,] newbody = _body;
+			if (Contains (_body, y, x)) {
+				isGameOver = IsGameOverState.EBodyCrash;
+				return newbody;
+			}
 
 			//eating and growing
 			switch (_field [y, x]){
@@ -186,7 +207,6 @@ namespace SnakeGraph
 					}
 					break;
 				} 
-				case (int)Colors.EBody:
 				case (int)Colors.EField:
 				{
 					newbody = new int[length, 2];
@@ -203,6 +223,15 @@ namespace SnakeGraph
 			return newbody;
 		}
 
+		static bool Contains( int[,] _body, int _y, int _x)
+		{
+			var length = _body.GetLength(0);
+			for (var i = 0; i < length; ++i) {
+				if (_body [i, 0] == _y && _body [i, 1] == _x)
+					return true;
+			}
+			return false;
+		}
 
 
 		static int[,] SeedFood(int[,] _field, int[,] _body)
@@ -216,6 +245,7 @@ namespace SnakeGraph
 				
 				int y = random.Next(0, height);
 				int x = random.Next(0, width);
+
 
 				//check whether it is not inside the body
 				bool ok = true;
