@@ -18,6 +18,7 @@ namespace SnakeGraph
 		private static int[,] cached_field;
 
 		private const int numberOfFood = 10;
+		private const int gameSpeed = 100;
 		private const bool playMode = false;
 
 		public static void Main (string[] args)
@@ -44,7 +45,7 @@ namespace SnakeGraph
 				{
 					do
 					{
-						Thread.Sleep(100);	
+						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
 						DrowBody(body);
@@ -56,7 +57,7 @@ namespace SnakeGraph
 				{
 					do
 					{
-						Thread.Sleep(100);	
+						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
 						DrowBody(body);
@@ -68,7 +69,7 @@ namespace SnakeGraph
 				{
 					do
 					{
-						Thread.Sleep(100);	
+						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
 						DrowBody(body);
@@ -80,7 +81,7 @@ namespace SnakeGraph
 				{
 					do
 					{
-						Thread.Sleep(100);	
+						Thread.Sleep(gameSpeed);	
 						ClearBody(body);
 						body = BuildBody(field, body, side);
 						DrowBody(body);
@@ -174,20 +175,27 @@ namespace SnakeGraph
 			int[,] newbody = _body;
 
 			//eating and growing
-			if (_field [y, x] == (int)Colors.EFood) {
-				cached_field [y, x] = (int)Colors.EField;
-				newbody = new int[length + 1, 2];
-				for (var i = 0; i < length; ++i) {
-					newbody [i + 1, 0] = _body [i, 0];
-					newbody [i + 1, 1] = _body [i, 1];
+			switch (_field [y, x]){
+				case (int)Colors.EFood: 
+				{
+					cached_field [y, x] = (int)Colors.EField;
+					newbody = new int[length + 1, 2];
+					for (var i = 0; i < length; ++i) {
+						newbody [i + 1, 0] = _body [i, 0];
+						newbody [i + 1, 1] = _body [i, 1];
+					}
+					break;
+				} 
+				case (int)Colors.EBody:
+				case (int)Colors.EField:
+				{
+					newbody = new int[length, 2];
+					for (var i = 1; i < length; ++i) {
+						newbody [i, 0] = _body [i - 1, 0];
+						newbody [i, 1] = _body [i - 1, 1];
+					}
+					break;
 				}
-			} else {
-				newbody = new int[length, 2];
-				for (var i = 1; i < length; ++i) {
-					newbody [i, 0] = _body [i - 1, 0];
-					newbody [i, 1] = _body [i - 1, 1];
-				}
-
 			}
 			newbody [0, 0] = y;
 			newbody [0, 1] = x;
