@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 
+using System.Collections.Generic;
+
 namespace SnakeGraph
 {
 
@@ -21,13 +23,15 @@ namespace SnakeGraph
 
 	class MainClass
 	{
+		private static IsGameOverState isGameOver = IsGameOverState.EFalse;
+
 		private static int[,] cached_field;
+		private static int startBodyLength = 999;
 
 		private const int numberOfFood = 10;
 		private const int gameSpeed = 400;
 		private const bool playMode = false;
 
-		static private IsGameOverState isGameOver = IsGameOverState.EFalse;
 
 		public static void Main (string[] args)
 		{
@@ -35,6 +39,7 @@ namespace SnakeGraph
 			int h = 12; //Console.WindowHeight;
 			int[,] field = new int[h, w];
 			int[,] body = { { 1, 1 }, { 1, 2 }, { 1, 3 }, { 1, 4 } };
+			startBodyLength = body.GetLength (0);
 
 			//we need body to seed food correctly
 			field = BuildField (field, body);
@@ -205,6 +210,10 @@ namespace SnakeGraph
 						newbody [i + 1, 0] = _body [i, 0];
 						newbody [i + 1, 1] = _body [i, 1];
 					}
+					if (length + 1 >= startBodyLength + numberOfFood) {
+						isGameOver = IsGameOverState.EFoodDone;
+						return newbody;
+					}
 					break;
 				} 
 				case (int)Colors.EField:
@@ -240,11 +249,17 @@ namespace SnakeGraph
 			var width = _field.GetLength (1);
 			Random random = new Random ();
 
+
 			//_field [0, 0] = (int)Colors.EFood;
 			for (int i = 0; i < numberOfFood; ++i) {
 				
 				int y = random.Next(0, height);
 				int x = random.Next(0, width);
+
+				if ((int)Colors.EFood == _field[y,x]) {
+					--i;
+					continue;
+				}
 
 
 				//check whether it is not inside the body
@@ -258,8 +273,10 @@ namespace SnakeGraph
 
 				if (ok)
 					_field [y, x] = (int)Colors.EFood;
-				else
+				else {
 					--i;
+					continue;
+				}
 			}
 
 			return _field;
@@ -290,17 +307,6 @@ namespace SnakeGraph
 					_field [y, x] = (int)_bodyColor;
 				}
 			}
-
-			for (var i = 0; i < height; ++i)
-			{
-				for (var j = 0; j < width; ++j)
-				{
-					if (_field[i, j]==0) { Console.Write(' '); } else 
-					{ if (_field[i, j]==1){Console.Write('O'); } else {Console.Write('$'); }}
-				}
-				Console.WriteLine();
-			}
-			Console.WriteLine();
 
 			return _field;
 		}
