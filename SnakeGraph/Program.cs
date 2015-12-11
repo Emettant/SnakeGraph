@@ -102,7 +102,7 @@ namespace SnakeGraph
 				}
 			}
 			_field = SeedFood (_field, _body);
-			Out (_field, null, Colors.EField);
+			CombineAndOut (_field, null, Colors.EField);
 			return _field;
 		}
 
@@ -110,12 +110,12 @@ namespace SnakeGraph
 		{
 			//have to check correctness of body? e.g. continuity
 			//have to check out of bound of field?
-			Out(null, _body, Colors.EBody);
+			CombineAndOut(null, _body, Colors.EBody);
 		}
 
 		static void ClearBody(int[,] _body)
 		{
-			Out(null, _body, Colors.EField);
+			CombineAndOut(null, _body, Colors.EField);
 		}
 
 		static int[,] BuildBody(int[,] _field, int[,] _body, ConsoleKey op)
@@ -227,7 +227,7 @@ namespace SnakeGraph
 			return _field;
 		}
 
-		static void Out(int[,] _field, int[,] _body, Colors _bodyColor)
+		static int[,] CombineBodyAndField(int[,] _field, int[,] _body, Colors _bodyColor)
 		{
 			//if we draw body only, we have to know field from the past
 			if (_field == null)
@@ -248,20 +248,68 @@ namespace SnakeGraph
 
 					y = ToGoodValue (0, height, y);
 					x = ToGoodValue (0, width, x);
-					
+
 					_field [y, x] = (int)_bodyColor;
 				}
 			}
 
+			for (var i = 0; i < height; ++i)
+			{
+				for (var j = 0; j < width; ++j)
+				{
+					if (_field[i, j]==0) { Console.Write(' '); } else 
+					{ if (_field[i, j]==1){Console.Write('O'); } else {Console.Write('$'); }}
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
+
+			return _field;
+		}
+
+		static void CasualPhysicalOut(int[,] _field)
+		{
+
+			var height = _field.GetLength (0);
+			var width = _field.GetLength (1);
 
 			for (var i = 0; i < height; ++i) {
 				for (var j = 0; j < width; ++j) {
-						Console.Write(_field[i,j]);
-					}
-					Console.WriteLine();
+					Console.Write(_field[i,j]);
 				}
+				Console.WriteLine();
+			}
 			Console.WriteLine();
 		}
+
+		static void FancyPhysicalOut(int[,] _field)
+		{
+			var height = _field.GetLength (0);
+			var width = _field.GetLength (1);
+
+			for (var i = 0; i < height; ++i)
+			{
+				for (var j = 0; j < width; ++j)
+				{
+					if (_field[i, j]==0) { Console.Write(' '); } else 
+					{ if (_field[i, j]==1){Console.Write('O'); } else {Console.Write('$'); }}
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
+
+		}
+
+		static void CombineAndOut(int[,] _field, int[,] _body, Colors _bodyColor)
+		{
+			
+			_field = CombineBodyAndField (_field, _body, _bodyColor);
+
+			CasualPhysicalOut (_field);
+			//FancyPhysicalOut(_field);
+
+		}
+
 		static int ToGoodValue(int _lowBorder, int _highBorder, int _cur)
 		{
 			while (false == _lowBorder <= _cur)
